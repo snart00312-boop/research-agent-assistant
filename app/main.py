@@ -2,6 +2,7 @@ from pathlib import Path
 
 from llm import call_llm
 from loader import load_txt
+from splitter import split_text, print_chunks
 
 
 def build_prompt(document: str, question: str) -> str:
@@ -21,37 +22,52 @@ def build_prompt(document: str, question: str) -> str:
     return prompt
 
 
+# def main():
+#     project_root = Path(__file__).resolve().parent.parent
+#     doc_path = project_root / "data" / "docs" / "test.txt"
+#
+#     document = load_txt(str(doc_path))
+#
+#     print("研究生科研资料 Agent")
+#     print("已加载文档：data/docs/test.txt")
+#     print("输入 exit 退出程序")
+#
+#     while True:
+#         question = input("\n请输入你的问题：").strip()
+#
+#         if not question:
+#             print("问题不能为空，请重新输入。")
+#             continue
+#
+#         if question.lower() in ["exit", "quit"]:
+#             print("已退出")
+#             break
+#
+#         prompt = build_prompt(document, question)
+#
+#         try:
+#             answer = call_llm(prompt)
+#         except Exception as e:
+#             print(f"\n调用模型失败：{e}")
+#             continue
+#
+#         print("\n模型回答：")
+#         print(answer)
+
+
 def main():
     project_root = Path(__file__).resolve().parent.parent
-    doc_path = project_root / "data" / "docs" / "test.txt"
+    file_path = project_root / "data" / "docs" / "test.txt"
 
-    document = load_txt(str(doc_path))
+    text = load_txt(file_path)
 
-    print("研究生科研资料 Agent")
-    print("已加载文档：data/docs/test.txt")
-    print("输入 exit 退出程序")
+    chunks = split_text(
+        text,
+        chunk_size=500,
+        chunk_overlap=100,
+    )
 
-    while True:
-        question = input("\n请输入你的问题：").strip()
-
-        if not question:
-            print("问题不能为空，请重新输入。")
-            continue
-
-        if question.lower() in ["exit", "quit"]:
-            print("已退出")
-            break
-
-        prompt = build_prompt(document, question)
-
-        try:
-            answer = call_llm(prompt)
-        except Exception as e:
-            print(f"\n调用模型失败：{e}")
-            continue
-
-        print("\n模型回答：")
-        print(answer)
+    print_chunks(chunks)
 
 
 if __name__ == "__main__":
