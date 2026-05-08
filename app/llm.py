@@ -28,7 +28,7 @@ def call_llm(prompt: str) -> str:
         messages=[
             {
                 "role": "system",
-                "content": "你是一个帮助用户学习大模型应用开发的助手，回答要清晰、简洁、适合初学者。",
+                "content": "你是一个研究生科研资料问答助手。回答要清晰、准确、简洁。",
             },
             {
                 "role": "user",
@@ -44,4 +44,4 @@ def call_llm(prompt: str) -> str:
         },
     )
 
-    return response.choices[0].message.content
+    return response.choices[0].message.content or ""

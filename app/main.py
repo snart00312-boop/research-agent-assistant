@@ -32,14 +32,23 @@ def main():
     print("输入 exit 退出程序")
 
     while True:
-        question = input("\n请输入你的问题：")
+        question = input("\n请输入你的问题：").strip()
+
+        if not question:
+            print("问题不能为空，请重新输入。")
+            continue
 
         if question.lower() in ["exit", "quit"]:
             print("已退出")
             break
 
         prompt = build_prompt(document, question)
-        answer = call_llm(prompt)
+
+        try:
+            answer = call_llm(prompt)
+        except Exception as e:
+            print(f"\n调用模型失败：{e}")
+            continue
 
         print("\n模型回答：")
         print(answer)
