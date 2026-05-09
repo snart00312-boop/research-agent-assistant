@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 
-load_dotenv()
+load_dotenv(override=True)
 
 
 def get_client() -> OpenAI:

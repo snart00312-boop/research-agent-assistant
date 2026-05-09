@@ -3,6 +3,8 @@ from pathlib import Path
 from llm import call_llm
 from loader import load_txt
 from splitter import split_text, print_chunks
+from vectorstore import save_chunks_to_faiss
+
 
 
 def build_prompt(document: str, question: str) -> str:
@@ -55,6 +57,7 @@ def build_prompt(document: str, question: str) -> str:
 #         print(answer)
 
 
+
 def main():
     project_root = Path(__file__).resolve().parent.parent
     file_path = project_root / "data" / "docs" / "test.txt"
@@ -68,6 +71,11 @@ def main():
     )
 
     print_chunks(chunks)
+
+    save_chunks_to_faiss(
+        chunks=chunks,
+        source=str(file_path),
+    )
 
 
 if __name__ == "__main__":
