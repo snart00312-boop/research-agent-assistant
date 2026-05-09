@@ -4,6 +4,7 @@ from llm import call_llm
 from loader import load_txt
 from splitter import split_text, print_chunks
 from vectorstore import save_chunks_to_faiss
+from app.vectorstore import print_retrieval_results
 
 
 
@@ -58,24 +59,46 @@ def build_prompt(document: str, question: str) -> str:
 
 
 
+# def main():
+#     project_root = Path(__file__).resolve().parent.parent
+#     file_path = project_root / "data" / "docs" / "test.txt"
+#
+#     text = load_txt(file_path)
+#
+#     chunks = split_text(
+#         text,
+#         chunk_size=500,
+#         chunk_overlap=100,
+#     )
+#
+#     print_chunks(chunks)
+#
+#     save_chunks_to_faiss(
+#         chunks=chunks,
+#         source=str(file_path),
+#     )
+#
+#
+# if __name__ == "__main__":
+#     main()
+
 def main():
-    project_root = Path(__file__).resolve().parent.parent
-    file_path = project_root / "data" / "docs" / "test.txt"
+    print("Research Agent Assistant - Day 7 FAISS Retrieval Test")
+    print("输入问题后，系统会从 FAISS 中检索 3 个相关片段。")
+    print("输入 q 退出。")
 
-    text = load_txt(file_path)
+    while True:
+        question = input("\n请输入你的问题：").strip()
 
-    chunks = split_text(
-        text,
-        chunk_size=500,
-        chunk_overlap=100,
-    )
+        if question.lower() in ["q", "quit", "exit"]:
+            print("已退出。")
+            break
 
-    print_chunks(chunks)
+        if not question:
+            print("问题不能为空。")
+            continue
 
-    save_chunks_to_faiss(
-        chunks=chunks,
-        source=str(file_path),
-    )
+        print_retrieval_results(question, top_k=3)
 
 
 if __name__ == "__main__":

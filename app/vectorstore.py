@@ -122,3 +122,44 @@ def load_faiss():
         index_name=INDEX_NAME,
         allow_dangerous_deserialization=True,
     )
+
+
+def retrieve_chunks(question: str, top_k: int = 3):
+    """
+    根据用户问题，从 FAISS 中检索 top_k 个相关 chunk。
+    """
+    vectorstore = load_faiss()
+
+    results = vectorstore.similarity_search_with_score(
+        query=question,
+        k=top_k,
+    )
+
+    return results
+
+
+def print_retrieval_results(question: str, top_k: int = 3):
+    """
+    打印检索结果，用于 Day 7 验收。
+    """
+    results = retrieve_chunks(question, top_k=top_k)
+
+    if not results:
+        print("没有检索到相关内容")
+        return
+
+    print("\n检索结果：")
+    print("=" * 60)
+
+    for i, (doc, score) in enumerate(results, start=1):
+        print(f"\n[{i}] 距离分数: {score}")
+        print("-" * 60)
+
+        source = doc.metadata.get("source", "unknown")
+        chunk_id = doc.metadata.get("chunk_id", "unknown")
+
+        print(f"来源文件: {source}")
+        print(f"chunk_id: {chunk_id}")
+        print("内容片段:")
+        print(doc.page_content[:500])
+        print("-" * 60)
