@@ -24,6 +24,7 @@ research-agent-assistant/
     splitter.py      # 文本切分
     vectorstore.py   # 向量库（embedding + FAISS 存取 + 检索）
     rag.py           # RAG 问答（检索结果 → LLM 生成 + 引用）
+    ingest.py        # 文档入库入口（txt / md / pdf → chunks → FAISS）
   data/
     docs/
       test.txt       # 测试文档
@@ -73,32 +74,47 @@ ZHIPU_BASE_URL=https://open.bigmodel.cn/api/paas/v4
 ZHIPU_MODEL=glm-4.5-air
 ```
 
-**5. 运行**
+**5. 文档入库**
+
+单个文档入库：
+
+```bash
+python app/ingest.py data/docs/test.pdf
+```
+
+多个文档混合入库：
+
+```bash
+python app/ingest.py data/docs/test.txt data/docs/test.md data/docs/test.pdf
+```
+
+**6. 运行问答**
 
 ```bash
 python app/main.py
 ```
 
-## 当前功能（截至 Day 8）
+## 当前功能（截至 Day 9）
 
 - 调用智谱 GLM-4.5-Air 大模型进行问答
-- 读取 txt 文档，将文档内容作为上下文
+- 读取 txt / Markdown / PDF 文档，将文档内容作为上下文
 - 使用 RecursiveCharacterTextSplitter 将长文档切分为 chunk
 - 调用智谱 embedding-3 生成文本向量（1024 维）
 - 使用 FAISS 存储和检索向量
 - 根据用户问题检索 top-k 个相关 chunk，展示分数和来源
 - 将检索到的 chunk 拼接进 prompt，生成基于文档的 RAG 回答
 - 在回答中使用 `[1]`、`[2]` 标注引用，并列出来源文件和 chunk_id
+- 支持多个文档混合入库，检索结果可来自不同格式的资料
 
 ## RAG 流程
 
 ```
-文档 (txt)
-  ↓ loader.load_txt()
+文档 (txt / md / pdf)
+  ↓ loader.load_document()
 原始文本
   ↓ splitter.split_text()
 chunks
-  ↓ vectorstore.save_chunks_to_faiss()
+  ↓ vectorstore.save_documents_to_faiss()
 embedding → FAISS 索引
   ↓ vectorstore.retrieve_chunks()
 检索结果（top-k chunks + 相似度分数）
@@ -118,6 +134,9 @@ embedding → FAISS 索引
 ### loader.py — 文档加载
 
 - `load_txt(path)` — 读取 txt 文件，返回文本内容
+- `load_markdown(path)` — 读取 Markdown 文件，返回文本内容
+- `load_pdf(path)` — 使用 PyMuPDF 读取 PDF 文本
+- `load_document(path)` — 根据文件后缀自动选择 txt / md / pdf 加载函数
 
 ### splitter.py — 文本切分
 
@@ -127,10 +146,17 @@ embedding → FAISS 索引
 ### vectorstore.py — 向量库
 
 - `ZhipuAIEmbeddings` — 自定义 embedding 类，封装智谱 embedding-3 API
+- `build_documents(chunks, source)` — 将文本 chunk 转为 LangChain Document，并保存来源 metadata
+- `save_documents_to_faiss(documents)` — 将多个文档的 chunks 统一写入 FAISS
 - `save_chunks_to_faiss(chunks, source)` — 将 chunks 向量化并存入 FAISS
 - `retrieve_chunks(question, top_k)` — 检索与问题相关的 top-k 个 chunk
 - `print_retrieval_results(question, top_k)` — 格式化打印检索结果
 - `load_faiss()` — 从本地加载 FAISS 索引
+
+### ingest.py — 文档入库
+
+- `ingest_document(path)` — 单个文档入库
+- `ingest_documents(paths)` — 多个 txt / md / pdf 文档混合入库
 
 ### rag.py — RAG 问答
 
@@ -151,7 +177,7 @@ embedding → FAISS 索引
 | Day 6 | 向量存储 (embedding + FAISS) | ✅ |
 | Day 7 | 向量检索 (相似度搜索 + top-k) | ✅ |
 | Day 8 | RAG 问答闭环 + 引用溯源 | ✅ |
-| Day 9 | 多格式文档加载 (PDF/MD) | 🔲 |
+| Day 9 | 多格式文档加载 (PDF/MD) | ✅ |
 | Day 10 | 查询改写 (Query Rewriting) | 🔲 |
 | Day 11 | 混合检索 (BM25 + FAISS + RRF) | 🔲 |
 | Day 12 | 重排序 (Cross-Encoder Reranking) | 🔲 |

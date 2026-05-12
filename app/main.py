@@ -1,8 +1,8 @@
 from rag import print_rag_answer
 
 def main():
-    print("Research Agent Assistant - Day 8 RAG QA")
-    print("输入问题后，系统会检索 FAISS 中的相关片段，并调用大模型生成带引用的回答。")
+    print("Research Agent Assistant - Day 9 Multi-format RAG QA")
+    print("输入问题后，系统会从 txt / md / pdf 入库内容中检索片段，并生成带引用的回答。")
     print("输入 q 退出。")
 
     while True:

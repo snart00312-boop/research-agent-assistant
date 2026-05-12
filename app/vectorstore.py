@@ -77,22 +77,19 @@ def build_documents(chunks: list[str], source: str = "data/docs/test.txt"):
     return documents
 
 
-def save_chunks_to_faiss(chunks: list[str], source: str = "data/docs/test.txt"):
-    if not chunks:
-        print("没有 chunks 可以写入向量库")
+def save_documents_to_faiss(documents: list[Document]):
+    if not documents:
+        print("没有 documents 可以写入向量库")
         return None
 
     print("步骤 1：准备创建 embedding 模型", flush=True)
     embeddings = get_embedding_model()
 
-    print("步骤 2：准备构建 documents", flush=True)
-    documents = build_documents(chunks, source=source)
-
-    print("步骤 3：测试 embedding 是否能正常调用", flush=True)
+    print("步骤 2：测试 embedding 是否能正常调用", flush=True)
     test_vector = embeddings.embed_query("这是一个测试文本")
     print(f"embedding 调用成功，向量维度：{len(test_vector)}", flush=True)
 
-    print("步骤 4：准备写入 FAISS", flush=True)
+    print("步骤 3：准备写入 FAISS", flush=True)
 
     vectorstore_path = Path(VECTORSTORE_DIR)
     vectorstore_path.mkdir(parents=True, exist_ok=True)
@@ -110,6 +107,17 @@ def save_chunks_to_faiss(chunks: list[str], source: str = "data/docs/test.txt"):
     print(f"向量库保存目录：{VECTORSTORE_DIR}", flush=True)
 
     return vectorstore
+
+
+def save_chunks_to_faiss(chunks: list[str], source: str = "data/docs/test.txt"):
+    if not chunks:
+        print("没有 chunks 可以写入向量库")
+        return None
+
+    print("准备构建 documents", flush=True)
+    documents = build_documents(chunks, source=source)
+
+    return save_documents_to_faiss(documents)
 
 
 def load_faiss():
