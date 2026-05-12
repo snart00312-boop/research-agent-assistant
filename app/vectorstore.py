@@ -94,10 +94,8 @@ def save_chunks_to_faiss(chunks: list[str], source: str = "data/docs/test.txt"):
 
     print("步骤 4：准备写入 FAISS", flush=True)
 
-    import shutil
     vectorstore_path = Path(VECTORSTORE_DIR)
-    if vectorstore_path.exists():
-        shutil.rmtree(str(vectorstore_path))
+    vectorstore_path.mkdir(parents=True, exist_ok=True)
 
     vectorstore = FAISS.from_documents(
         documents=documents,
